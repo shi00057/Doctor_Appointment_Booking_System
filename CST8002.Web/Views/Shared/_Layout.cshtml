@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CST8002</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">CST8002</a>
+                <div class="d-flex">
+                    @if (User?.Identity?.IsAuthenticated ?? false)
+                    {
+                        <a class="btn btn-outline-light me-2" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                        <a class="btn btn-light" asp-controller="Account" asp-action="Logout">Logout</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-light" asp-controller="Account" asp-action="Login">Login</a>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top py-3 mt-4">
+        <div class="container text-muted">
+            © @DateTime.UtcNow.Year - CST8002
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

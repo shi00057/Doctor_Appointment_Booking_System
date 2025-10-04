@@ -1,0 +1,27 @@
+@model IEnumerable<CST8002.Application.DTOs.PatientDto>
+@{
+    ViewData["Title"] = "Activate Patients";
+}
+<h2>Activate Patients</h2>
+<table class="table">
+    <thead>
+        <tr><th>Id</th><th>Full Name</th><th>Email</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.PatientId</td>
+                <td>@p.FullName</td>
+                <td>@p.Email</td>
+                <td>
+                    <form asp-action="Activate" method="post">
+                        <input type="hidden" name="userId" value="@p.UserId" />
+                        <button class="btn btn-primary">Activate</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-secondary" asp-controller="Dashboard" asp-action="Admin">Back</a>

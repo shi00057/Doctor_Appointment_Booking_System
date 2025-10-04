@@ -1,0 +1,10 @@
+@{
+    ViewData["Title"] = "Registration Success";
+}
+<div class="container mt-5 text-center">
+    <h3>Registration successful</h3>
+    <p>You will be redirected to Home in 5 seconds.</p>
+</div>
+<script>
+    setTimeout(function(){ window.location.href='@Url.Action("Index", "Home")'; }, 5000);
+</script>

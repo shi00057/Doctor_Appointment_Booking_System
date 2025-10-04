@@ -1,0 +1,57 @@
+﻿@model CST8002.Web.Models.Admin.GenerateSlotsVm
+@{
+    ViewData["Title"] = "Generate Slots";
+}
+<h2>Generate Slots</h2>
+@if (TempData["ok"] != null)
+{
+    <div>@TempData["ok"]</div>
+}
+
+<form asp-action="GenerateSlots" method="post">
+    <div>
+        <label>DoctorId</label>
+        <input asp-for="DoctorId" />
+    </div>
+    <div>
+        <label>WorkDate</label>
+        <input asp-for="WorkDate" type="date" />
+    </div>
+    <div>
+        <label>StartHour</label>
+        <input asp-for="StartHour" />
+    </div>
+    <div>
+        <label>EndHour</label>
+        <input asp-for="EndHour" />
+    </div>
+    <button type="submit">Generate</button>
+</form>
+
+<hr />
+<h3>Generate For Range</h3>
+<form asp-action="GenerateSlotsRange" method="post">
+    <div>
+        <label>DoctorId</label>
+        <input name="DoctorId" />
+    </div>
+    <div>
+        <label>FromDate</label>
+        <input name="FromDate" type="date" />
+    </div>
+    <div>
+        <label>ToDate</label>
+        <input name="ToDate" type="date" />
+    </div>
+    <div>
+        <label>StartHour</label>
+        <input name="StartHour" />
+    </div>
+    <div>
+        <label>EndHour</label>
+        <input name="EndHour" />
+    </div>
+    <button type="submit">Generate Range</button>
+</form>
+
+<p><a href="/Admin">Back to Dashboard</a></p>
