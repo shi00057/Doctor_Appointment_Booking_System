@@ -1,0 +1,48 @@
+@using CST8002.Web.ViewModels
+@* @model ReportResultVm *@
+@{
+    ViewData["Title"] = "Reports";
+}
+<h2>Doctor Appointments Report</h2>
+
+<form asp-action="Reports" method="post">
+    <div>
+        <label>DoctorId</label>
+        <input asp-for="Filter.DoctorId" />
+    </div>
+    <div>
+        <label>FromUtc</label>
+        <input asp-for="Filter.FromUtc" type="datetime-local" />
+    </div>
+    <div>
+        <label>ToUtc</label>
+        <input asp-for="Filter.ToUtc" type="datetime-local" />
+    </div>
+    <button type="submit">Run</button>
+</form>
+
+@if (Model?.Rows != null)
+{
+    <h3>Totals</h3>
+    <div>
+
+    </div>
+
+    <h3>Rows</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ApptId</th>
+                <th>PatientId</th>
+                <th>StartUtc</th>
+                <th>EndUtc</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+           
+        </tbody>
+    </table>
+}
+
+<p><a href="/Admin">Back to Dashboard</a></p>

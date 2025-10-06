@@ -1,0 +1,49 @@
+﻿@using CST8002.Web.ViewModels
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+<h2>My Appointments</h2>
+<form method="get" asp-action="MyAppointments">
+    <input type="hidden" name="patientId" value="@Model.PatientId" />
+    <label>From</label>
+    <input type="date" name="from" value="@Model.From.ToString("yyyy-MM-dd")" />
+    <label>To</label>
+    <input type="date" name="to" value="@Model.To.ToString("yyyy-MM-dd")" />
+    <button type="submit">Filter</button>
+</form>
+<table>
+    <thead>
+        <tr>
+            <th>AppointmentId</th>
+            <th>DoctorId</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model.Items)
+        {
+            <tr>
+                <td>@a.ApptId</td>
+                <td>@a.DoctorId</td>
+                <td>@a.StartUtc.ToLocalTime()</td>
+                <td>@a.EndUtc.ToLocalTime()</td>
+                <td>@a.Status</td>
+                <td>
+                    <form asp-action="CancelMyAppointment" method="post">
+                        <input type="hidden" name="apptId" value="@a.ApptId" />
+                        <input type="hidden" name="patientId" value="@Model.PatientId" />
+                        <button type="submit">Cancel</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <a asp-action="CreateAppointment" asp-route-patientId="@Model.PatientId">Create Appointment</a> |
+    <a asp-action="Profile" asp-route-patientId="@Model.PatientId">My Profile</a>
+</div>

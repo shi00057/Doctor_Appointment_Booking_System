@@ -1,0 +1,23 @@
+@model CST8002.Web.Areas.Admin.ViewModels.Users.AdminUsersPendingPatientsVm
+
+<table class="table">
+    <thead>
+        <tr><th>Name</th><th>Email</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model.Pending)
+        {
+            <tr>
+                <td>@row.FullName</td>
+                <td>@row.Email</td>
+                <td>
+                    <form asp-area="Admin" asp-controller="Users" asp-action="Activate"
+                          asp-route-userId="@row.UserId" method="post">
+                        <button type="submit" class="btn btn-sm btn-primary">Activate</button>
+                        @Html.AntiForgeryToken()
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

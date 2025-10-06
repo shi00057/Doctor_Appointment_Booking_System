@@ -1,23 +1,35 @@
-@model IEnumerable<CST8002.Web.ViewModels.NotificationVm>
-@if (Model != null && Model.Any())
-{
-    <div class="card mt-4">
-        <div class="card-header">Notifications</div>
-        <ul class="list-group list-group-flush">
-            @foreach (var n in Model)
+@* Views/Shared/_NotificationsBar.cshtml *@
+@using CST8002.Web.ViewModels
+@{
+    var unread = ViewData["UnreadNotifications"] as IEnumerable<NotificationVm>
+                 ?? Enumerable.Empty<NotificationVm>();
+}
+
+<div class="border-top mt-3 pt-2 small">
+    @if (!unread.Any())
+    {
+        <span class="text-muted">No new notifications.</span>
+    }
+    else
+    {
+        <ul class="list-unstyled mb-2">
+            @foreach (var item in unread)
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>@n.Message</div>
-                    <button class="btn btn-sm btn-outline-primary" data-id="@n.NotificationId" onclick="markRead(this)">Mark as read</button>
+                <li class="d-flex align-items-start justify-content-between gap-2 mb-1">
+                    <span>@item.Message</span>
+
+                    <form asp-controller="Notifications" asp-action="MarkRead" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@(item.NotificationId)" />
+                        <button type="submit" class="btn btn-link btn-sm p-0">Mark read</button>
+                    </form>
                 </li>
             }
         </ul>
-    </div>
-    <script>
-        async function markRead(btn){
-            const id = btn.getAttribute('data-id');
-            await fetch('/ui/notifications/mark-read/'+id,{method:'POST'});
-            btn.closest('li').remove();
-        }
-    </script>
-}
+
+        <form asp-controller="Notifications" asp-action="MarkAll" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Mark all</button>
+        </form>
+    }
+</div>

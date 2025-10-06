@@ -15,5 +15,8 @@ namespace CST8002.Application.Interfaces.Repositories
         Task<IEnumerable<NotificationDto>> NotificationsListForUserAsync(int userId, bool onlyUnread, int top, CancellationToken ct = default);
         Task NotificationsMarkReadAsync(int userId, long notificationId, CancellationToken ct = default);
         Task NotificationsDeleteAsync(int userId, long notificationId, CancellationToken ct = default);
+        Task NotificationsMarkAllAsync(int userId, CancellationToken ct = default);
+        Task<int?> GetDoctorIdByUserIdAsync(int userId, CancellationToken ct = default);
+        Task<int?> GetPatientIdByUserIdAsync(int userId, CancellationToken ct = default);
     }
 }

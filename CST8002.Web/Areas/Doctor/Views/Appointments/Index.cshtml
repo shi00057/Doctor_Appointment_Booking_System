@@ -1,0 +1,45 @@
+﻿@model CST8002.Web.Areas.Doctor.ViewModels.DoctorAppointmentsIndexVm
+@{
+    ViewData["Title"] = "My Appointments";
+}
+<div class="container mt-3">
+    <h3>My Appointments</h3>
+
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-3">
+            <label class="form-label">From</label>
+            <input asp-for="From" class="form-control" type="date" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">To</label>
+            <input asp-for="To" class="form-control" type="date" />
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button class="btn btn-secondary" type="submit">Filter</button>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ApptId</th>
+                <th>PatientId</th>
+                <th>StartUtc</th>
+                <th>EndUtc</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Items)
+            {
+                <tr>
+                    <td>@a.ApptId</td>
+                    <td>@a.PatientId</td>
+                    <td>@a.StartUtc</td>
+                    <td>@a.EndUtc</td>
+                    <td>@a.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

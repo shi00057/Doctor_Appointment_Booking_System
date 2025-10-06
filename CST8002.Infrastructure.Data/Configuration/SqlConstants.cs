@@ -8,7 +8,9 @@ namespace CST8002.Infrastructure.Data.Configuration
         public const string SpActivateUser = $"{Schema}.sp_ActivateUser";
         public const string SpLogin = $"{Schema}.sp_Login";
         public const string SpRegisterPatient = $"{Schema}.sp_RegisterPatient";
-        public const string SpGetUserSaltByEmail = "[DABS].[sp_GetUserSaltByEmail]";
+        public const string SpGetUserSaltByEmail = $"{Schema}.[sp_GetUserSaltByEmail]";
+        public const string SpGetDoctorIdByUserId = $"{Schema}.sp_GetDoctorIdByUserId";
+        public const string SpGetPatientIdByUserId = $"{Schema}.sp_GetPatientIdByUserId";
 
         // Doctors
         public const string SpCreateDoctor = $"{Schema}.sp_CreateDoctor";
@@ -46,6 +48,8 @@ namespace CST8002.Infrastructure.Data.Configuration
         public const string SpNotificationsListForUser = $"{Schema}.sp_Notifications_ListForUser";
         public const string SpNotificationsMarkRead = $"{Schema}.sp_Notifications_MarkRead";
         public const string SpNotifyCreate = $"{Schema}.sp_Notify_Create";
+        public const string SpNotificationsMarkAll = $"{Schema}.sp_Notifications_MarkAll";
+
 
         // Reports
         public const string SpReportDoctorTotals = $"{Schema}.sp_Report_DoctorTotals";

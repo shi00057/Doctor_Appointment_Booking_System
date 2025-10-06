@@ -1,0 +1,43 @@
+@* Areas/Admin/Views/Users/Register.cshtml *@
+<form asp-area="Admin" asp-controller="Users" asp-action="Register" method="post" class="vstack gap-3">
+    <input asp-for="Email" class="form-control" />
+    <input asp-for="Name" class="form-control" />
+    <input asp-for="Specialty" class="form-control" />
+    <input asp-for="Phone" class="form-control" />
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+@* Areas/Admin/Views/Schedule/Generate.cshtml *@
+<form asp-area="Admin" asp-controller="Schedule" asp-action="Generate" method="post" class="vstack gap-3">
+    <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
+    <input asp-for="WorkDate" type="date" class="form-control" />
+    <input asp-for="StartHour" type="number" class="form-control" />
+    <input asp-for="EndHour" type="number" class="form-control" />
+    <button type="submit" class="btn btn-primary">Generate</button>
+</form>
+
+@* Areas/Doctor/Views/Schedule/Index.cshtml *@
+<form asp-area="Doctor" asp-controller="Schedule" asp-action="Index" method="post" class="vstack gap-3">
+    <input asp-for="WorkDate" type="date" class="form-control" />
+    <input asp-for="StartHour" type="number" class="form-control" />
+    <input asp-for="EndHour" type="number" class="form-control" />
+    <button type="submit" class="btn btn-primary">Generate</button>
+</form>
+
+@* Areas/Patient/Views/Booking/Index.cshtml  *@
+<form asp-area="Patient" asp-controller="Booking" asp-action="Index" method="post" class="vstack gap-3">
+    <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
+    <input asp-for="Date" type="date" class="form-control" />
+    <input asp-for="StartUtc" type="datetime-local" class="form-control" />
+    <input asp-for="EndUtc" type="datetime-local" class="form-control" />
+    <button type="submit" class="btn btn-primary">Book</button>
+</form>
+
+@* Areas/Patient/Views/Appointments/Index.cshtml  *@
+@foreach (var a in Model.Appointments)
+{
+    <form asp-area="Patient" asp-controller="Appointments" asp-action="Cancel" method="post" class="d-inline">
+        <input type="hidden" name="apptId" value="@a.ApptId" />
+        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+    </form>
+}

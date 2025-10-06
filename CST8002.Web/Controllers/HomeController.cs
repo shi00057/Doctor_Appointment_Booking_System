@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿using CST8002.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using CST8002.Web.Models;
+using System.Diagnostics;
 
 namespace CST8002.Web.Controllers
 {
@@ -12,7 +12,7 @@ namespace CST8002.Web.Controllers
         [HttpGet]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel
+            return View(new ErrorVm
             {
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });

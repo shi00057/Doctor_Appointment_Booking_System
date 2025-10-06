@@ -1,0 +1,40 @@
+@inject CST8002.Application.Abstractions.IDateTimeProvider Clock
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Dashboard</title>
+    <link href="~/css/site.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar">
+            @RenderSection("Sidebar", required: false)
+        </aside>
+
+        <main class="flex-fill">
+            <header class="border-bottom mb-3 p-2">
+                <div>
+                    Hello, @User?.Identity?.Name
+                    <span class="text-muted">| Today is @Clock.UtcNow.ToLocalTime().ToString("yyyy-MM-dd")</span>
+                </div>
+            </header>
+
+            <div class="container">
+                @RenderBody()
+            </div>
+
+            <footer class="border-top mt-4 p-2">
+                @await Html.PartialAsync("_NotificationsBar", ViewData["UnreadNotifications"])
+            </footer>
+        </main>
+    </div>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+@await Html.PartialAsync("_NotificationsBar")
+@await Html.PartialAsync("_Toast")

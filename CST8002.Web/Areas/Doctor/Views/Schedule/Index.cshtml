@@ -1,0 +1,32 @@
+﻿@model CST8002.Web.Areas.Doctor.ViewModels.DoctorScheduleIndexVm
+@{
+    ViewData["Title"] = "My Schedule";
+}
+<div class="container mt-3">
+    <h3>Generate My Available Slots</h3>
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success">Done</div>
+    }
+    <form asp-action="Index" method="post">
+        @Html.AntiForgeryToken()
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Work Date</label>
+                <input asp-for="WorkDate" class="form-control" type="date" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Start Hour</label>
+                <input asp-for="StartHour" class="form-control" type="number" min="0" max="23" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">End Hour</label>
+                <input asp-for="EndHour" class="form-control" type="number" min="1" max="24" />
+            </div>
+            <div class="col-md-3 align-self-end">
+                <button class="btn btn-primary" type="submit">Generate</button>
+            </div>
+        </div>
+        <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+    </form>
+</div>

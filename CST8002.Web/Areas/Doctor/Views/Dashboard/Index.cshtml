@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+}
+<div class="container mt-3">
+    <h3>Welcome</h3>
+    <div class="list-group">
+        <a class="list-group-item list-group-item-action" asp-area="Doctor" asp-controller="Schedule" asp-action="Index">Generate My Schedule</a>
+        <a class="list-group-item list-group-item-action" asp-area="Doctor" asp-controller="Appointments" asp-action="Index">My Appointments</a>
+        <a class="list-group-item list-group-item-action" asp-area="Doctor" asp-controller="Profile" asp-action="Edit">My Profile</a>
+    </div>
+</div>

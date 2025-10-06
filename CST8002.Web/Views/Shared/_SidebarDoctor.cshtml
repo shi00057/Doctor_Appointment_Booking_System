@@ -1,7 +1,7 @@
-<div class="list-group">
-    <a class="list-group-item list-group-item-action" asp-controller="DoctorUi" asp-action="Schedule">Generate Schedule</a>
-    <a class="list-group-item list-group-item-action" asp-controller="DoctorUi" asp-action="MyAppointments">My Appointments</a>
-    <a class="list-group-item list-group-item-action" asp-controller="DoctorUi" asp-action="Profile">Profile</a>
-    <a class="list-group-item list-group-item-action" asp-controller="Notifications" asp-action="Index">Notifications</a>
-    <a class="btn btn-outline-secondary mt-3" asp-controller="Account" asp-action="Logout">Logout</a>
-</div>
+<ul class="nav flex-column">
+	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Schedule" asp-action="Index">Generate Slots</a></li>
+	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Appointments" asp-action="Index">My Appointments</a></li>
+	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Profile" asp-action="Edit">Profile</a></li>
+	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+</ul>

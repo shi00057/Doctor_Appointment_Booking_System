@@ -1,0 +1,57 @@
+@using CST8002.Web.Areas.Patient.ViewModels
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Linq
+@model PatientBookingIndexVm
+
+@{
+    ViewData["Title"] = "Create Appointment";
+}
+<h2>Create Appointment</h2>
+
+<form asp-action="CreateAppointment" method="post">
+    <div>
+        <label>Doctor</label>
+        <select asp-for="DoctorId" asp-items="Model.Doctors"></select>
+        <span asp-validation-for="DoctorId"></span>
+    </div>
+    <div>
+        <label>Date</label>
+        <input asp-for="WorkDate" type="date" />
+        <span asp-validation-for="WorkDate"></span>
+    </div>
+    <button type="submit">Load Available Slots</button>
+</form>
+
+@if (Model.Slots != null && Model.Slots.Any())
+{
+    <h3>Available Slots</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Slots)
+            {
+                <tr>
+                    <td>@s.StartUtc.ToLocalTime()</td>
+                    <td>@s.EndUtc.ToLocalTime()</td>
+                    <td>
+                        <form asp-action="Book" method="post">
+                            <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+                            <input type="hidden" name="startUtc" value="@s.StartUtc.ToString("o")" />
+                            <input type="hidden" name="endUtc" value="@s.EndUtc.ToString("o")" />
+                            <button type="submit">Book</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<div>
+     + <a asp-area="Patient" asp-controller="Appointments" asp-action="Index">Back to My Appointments</a><a asp-area="Patient" asp-controller="Appointments" asp-action="Index">Back to My Appointments</a>
+</div>

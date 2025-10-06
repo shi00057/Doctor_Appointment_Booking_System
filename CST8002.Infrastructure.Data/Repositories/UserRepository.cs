@@ -25,7 +25,31 @@ namespace CST8002.Infrastructure.Data.Repositories
                 commandType: CommandType.StoredProcedure);
             return userId;
         }
+        public async Task NotificationsMarkAllAsync(int userId, CancellationToken ct = default)
+        {
+            //TODO:public const string SpNotificationsMarkAll = $"{Schema}.sp_Notifications_MarkAll";
+        }
+        public async Task<int?> GetDoctorIdByUserIdAsync(int userId, CancellationToken ct = default)
+        {
+            using var conn = await _factory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+            var p = new DynamicParameters();
+            p.Add("@UserId", userId, DbType.Int32);
+            var id = await conn.ExecuteScalarAsync<int?>(
+                new CommandDefinition(SqlConstants.SpGetDoctorIdByUserId, p,
+                    commandType: CommandType.StoredProcedure, cancellationToken: ct));
+            return id;
+        }
 
+        public async Task<int?> GetPatientIdByUserIdAsync(int userId, CancellationToken ct = default)
+        {
+            using var conn = await _factory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+            var p = new DynamicParameters();
+            p.Add("@UserId", userId, DbType.Int32);
+            var id = await conn.ExecuteScalarAsync<int?>(
+                new CommandDefinition(SqlConstants.SpGetPatientIdByUserId, p,
+                    commandType: CommandType.StoredProcedure, cancellationToken: ct));
+            return id;
+        }
         //public async Task<(int UserId, string Role, bool IsActive)> LoginAsync(string email, byte[] passwordHash, CancellationToken ct = default)
         //{
         //    using var conn = await _factory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
