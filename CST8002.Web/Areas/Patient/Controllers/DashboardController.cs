@@ -1,7 +1,9 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CST8002.Application.Abstractions;
 using CST8002.Application.Interfaces.Services;
+using CST8002.Web.Areas.Patient.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,10 +25,18 @@ namespace CST8002.Web.Areas.Patient.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken ct)
         {
-            var unread = await _notifications.ListForUserAsync(_user.UserId, true, 20, ct); 
+            var unread = await _notifications.ListForUserAsync(_user.UserId, true, 20, ct);
             ViewData["UnreadNotifications"] = unread;
             ViewData["UnreadCount"] = unread?.Count ?? 0;
-            return View();
+
+            var vm = new PatientDashboardIndexVm
+            {
+                DisplayName = User?.Identity?.Name ?? "Patient",
+                Today = DateTime.Now,
+                UnreadCount = unread?.Count ?? 0
+            };
+
+            return View(vm);
         }
     }
 }

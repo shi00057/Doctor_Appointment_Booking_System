@@ -17,9 +17,4 @@
     <ProjectReference Include="..\CST8002.Infrastructure.Data\CST8002.Infrastructure.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Areas\Doctor\ViewModels\" />
-    <Folder Include="Areas\Patient\ViewModels\" />
-  </ItemGroup>
-
 </Project>

@@ -94,6 +94,7 @@ namespace CST8002.Web.Controllers
         }
 
         // ---------- Register Patient ----------
+        private const int SaltSize = 16;
         [HttpGet]
         [AllowAnonymous]
         public IActionResult RegisterPatient()
@@ -108,7 +109,7 @@ namespace CST8002.Web.Controllers
         {
             if (!ModelState.IsValid) return View(vm);
 
-            var salt = RandomNumberGenerator.GetBytes(16);
+            var salt = RandomNumberGenerator.GetBytes(SaltSize);
 
             var pwd = vm.Password ?? string.Empty;
             using var sha256 = SHA256.Create();

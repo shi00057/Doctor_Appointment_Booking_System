@@ -1,10 +1,14 @@
-﻿using System.Security.Cryptography;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using CST8002.Application.DTOs;
 using CST8002.Application.Interfaces.Services;
 using CST8002.Web.Areas.Admin.ViewModels.Users;
-using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Runtime.Intrinsics.Arm;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace CST8002.Web.Areas.Admin.Controllers
 {
@@ -54,9 +58,11 @@ namespace CST8002.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Register(AdminUsersRegisterDoctorVm vm, CancellationToken ct)
         {
             if (!ModelState.IsValid) return View(vm);
-
-            var salt = RandomNumberGenerator.GetBytes(32);
-            var hash = Pbkdf2(vm.Password, salt, 100_000, 32);
+            const int SaltSize = 16;
+            var salt = RandomNumberGenerator.GetBytes(SaltSize);
+            var pwd = vm.Password ?? string.Empty;
+            using var sha256 = SHA256.Create();
+            var hash = sha256.ComputeHash(salt.Concat(Encoding.UTF8.GetBytes(pwd)).ToArray());
 
             var (userId, doctorId) = await _doctors.CreateAsync(
                 vm.Email.Trim(), hash, salt,

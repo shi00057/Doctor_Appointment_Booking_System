@@ -20,7 +20,7 @@
 
                     <form asp-controller="Notifications" asp-action="MarkRead" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@(item.NotificationId)" />
+                        <input type="hidden" name="id" value="@(item.Id)" />
                         <button type="submit" class="btn btn-link btn-sm p-0">Mark read</button>
                     </form>
                 </li>

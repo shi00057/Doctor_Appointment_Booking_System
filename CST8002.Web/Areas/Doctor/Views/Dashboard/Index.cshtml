@@ -1,11 +1,87 @@
+@model CST8002.Web.Areas.Doctor.ViewModels.DoctorDashboardIndexVm
 @{
     ViewData["Title"] = "Doctor Dashboard";
 }
-<div class="container mt-3">
-    <h3>Welcome</h3>
-    <div class="list-group">
-        <a class="list-group-item list-group-item-action" asp-area="Doctor" asp-controller="Schedule" asp-action="Index">Generate My Schedule</a>
-        <a class="list-group-item list-group-item-action" asp-area="Doctor" asp-controller="Appointments" asp-action="Index">My Appointments</a>
-        <a class="list-group-item list-group-item-action" asp-area="Doctor" asp-controller="Profile" asp-action="Edit">My Profile</a>
+
+<div class="container-fluid py-3">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="mb-0">Hello, @Model.DisplayName!</h3>
+        <div class="text-muted">Today is @Model.Today.ToString("yyyy-MM-dd")</div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a class="text-decoration-none" asp-area="Doctor" asp-controller="Schedule" asp-action="Index">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">Generate My Schedule</h5>
+                        <div class="small text-muted">Create or update available time slots.</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a class="text-decoration-none" asp-area="Doctor" asp-controller="Appointments" asp-action="Index">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">My Appointments</h5>
+                        <div class="small text-muted">View or cancel upcoming appointments.</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a class="text-decoration-none" asp-area="Doctor" asp-controller="Profile" asp-action="Edit">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">My Profile</h5>
+                        <div class="small text-muted">Specialty, contact info, etc.</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h5 class="mb-2">
+            Unread Notifications
+            <span class="badge bg-primary">@Model.UnreadCount</span>
+        </h5>
+
+        @if (Model.UnreadCount == 0)
+        {
+            <div class="alert alert-success mb-0">You're all caught up.</div>
+        }
+        else
+        {
+            <ul class="list-group">
+                @foreach (var n in Model.Unread)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="me-3">
+                            <div class="fw-semibold">
+                                @(n.Message ?? "")
+                            </div>
+                            @if (n.CreatedAt != default)
+                            {
+                                <div class="small text-muted">
+                                    @n.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                </div>
+                            }
+                        </div>
+                        <form asp-controller="Notifications" asp-action="MarkRead" method="post" class="ms-3">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@n.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Mark as read</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+            <div class="text-end mt-2">
+                <a asp-controller="Notifications" asp-action="Index" class="btn btn-link btn-sm">Open all notifications</a>
+            </div>
+        }
     </div>
 </div>

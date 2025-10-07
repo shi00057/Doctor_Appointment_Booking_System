@@ -1,9 +1,11 @@
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 using CST8002.Application.Abstractions;
 using CST8002.Application.Interfaces.Services;
+using CST8002.Web.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CST8002.Web.Areas.Admin.Controllers
 {
@@ -26,7 +28,14 @@ namespace CST8002.Web.Areas.Admin.Controllers
             var unread = await _notifications.ListForUserAsync(_user.UserId, true, 20, ct);
             ViewData["UnreadNotifications"] = unread;
             ViewData["UnreadCount"] = unread?.Count ?? 0;
-            return View();
+            var vm = new AdminDashboardIndexVm
+            {
+                UserName = User?.Identity?.Name ?? $"Admin#{_user.UserId}",               Today = DateTime.Today,
+                PendingPatients = 0,   
+                Doctors = 0,
+                TodayAppointments = 0
+            };
+            return View(vm);
         }
     }
 }
