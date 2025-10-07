@@ -1,5 +1,6 @@
 @model CST8002.Web.Areas.Doctor.ViewModels.DoctorDashboardIndexVm
 @{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
     ViewData["Title"] = "Doctor Dashboard";
 }
 
@@ -44,44 +45,14 @@
         </div>
     </div>
 
-    <div class="mt-4">
-        <h5 class="mb-2">
-            Unread Notifications
-            <span class="badge bg-primary">@Model.UnreadCount</span>
-        </h5>
+    <div class="mt-4 d-flex align-items-center gap-2">
+        <h5 class="mb-0">Unread Notifications</h5>
+        <span class="badge bg-primary">@Model.UnreadCount</span>
+        <a asp-controller="Notifications" asp-action="Index" class="ms-auto btn btn-link btn-sm">Open all</a>
+    </div>
 
-        @if (Model.UnreadCount == 0)
-        {
-            <div class="alert alert-success mb-0">You're all caught up.</div>
-        }
-        else
-        {
-            <ul class="list-group">
-                @foreach (var n in Model.Unread)
-                {
-                    <li class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="me-3">
-                            <div class="fw-semibold">
-                                @(n.Message ?? "")
-                            </div>
-                            @if (n.CreatedAt != default)
-                            {
-                                <div class="small text-muted">
-                                    @n.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-                                </div>
-                            }
-                        </div>
-                        <form asp-controller="Notifications" asp-action="MarkRead" method="post" class="ms-3">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@n.Id" />
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Mark as read</button>
-                        </form>
-                    </li>
-                }
-            </ul>
-            <div class="text-end mt-2">
-                <a asp-controller="Notifications" asp-action="Index" class="btn btn-link btn-sm">Open all notifications</a>
-            </div>
-        }
+    <!-- Bottom bar (shared) -->
+    <div class="mt-2">
+        @await Html.PartialAsync("_NotificationsBar")
     </div>
 </div>

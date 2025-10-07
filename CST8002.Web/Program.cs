@@ -1,6 +1,7 @@
 using CST8002.Application.Abstractions;
 using CST8002.Application.Interfaces.Repositories;
 using CST8002.Application.Interfaces.Services;
+using CST8002.Application.Mapping;
 using CST8002.Application.Services;
 using CST8002.Infrastructure.Data.Configuration;
 using CST8002.Infrastructure.Data.Connection;
@@ -9,8 +10,9 @@ using CST8002.Infrastructure.Data.Retry;
 using CST8002.Infrastructure.Data.Transactions;
 using CST8002.Web.Filters;
 using CST8002.Web.Infrastructure; 
-using Microsoft.AspNetCore.Mvc;
+using CST8002.Web.Mapping;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,10 @@ builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddSingleton<IDateTimeProvider, SystemClock>();
+
+//builder.Services.AddAutoMapper(
+//    typeof(UiMappingProfile).Assembly,
+//    typeof(ApplicationMappingProfile).Assembly);
 
 builder.Services.AddControllersWithViews(options =>
 {

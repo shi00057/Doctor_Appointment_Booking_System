@@ -25,18 +25,33 @@ namespace CST8002.Web.Areas.Patient.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken ct)
         {
-            var unread = await _notifications.ListForUserAsync(_user.UserId, true, 20, ct);
+            var dtos = await _notifications.ListForUserAsync(_user.UserId, true, 20, ct);
+
+            var unread = (dtos ?? Array.Empty<CST8002.Application.DTOs.NotificationDto>())
+                .Select(d => new CST8002.Web.ViewModels.NotificationVm
+                {
+                    Id = d.NotificationId,
+                    Message = !string.IsNullOrWhiteSpace(d.Title)
+                                ? (string.IsNullOrWhiteSpace(d.Body) ? d.Title : $"{d.Title} — {d.Body}")
+                                : (d.Body ?? string.Empty),
+                    CreatedAt = DateTime.SpecifyKind(d.CreatedUtc, DateTimeKind.Utc).ToLocalTime(),
+                    IsRead = d.IsRead,
+                    Severity = d.Severity switch { 3 => "danger", 2 => "warning", 1 => "success", _ => "info" }
+                })
+                .ToArray();
+
             ViewData["UnreadNotifications"] = unread;
-            ViewData["UnreadCount"] = unread?.Count ?? 0;
+            ViewData["UnreadCount"] = unread.Length;
 
             var vm = new PatientDashboardIndexVm
             {
                 DisplayName = User?.Identity?.Name ?? "Patient",
                 Today = DateTime.Now,
-                UnreadCount = unread?.Count ?? 0
+                UnreadCount = unread.Length
             };
 
             return View(vm);
         }
+
     }
 }
