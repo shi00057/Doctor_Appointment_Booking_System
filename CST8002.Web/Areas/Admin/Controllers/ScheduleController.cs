@@ -11,8 +11,7 @@ using CST8002.Web.Areas.Admin.ViewModels.Schedule;
 
 namespace CST8002.Web.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+
     public sealed class ScheduleController : AdminControllerBase
     {
         private readonly IScheduleService _schedule;

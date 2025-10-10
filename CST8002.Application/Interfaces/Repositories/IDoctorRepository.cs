@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CST8002.Application.DTOs;
+using System.Collections.Generic;
 
 namespace CST8002.Application.Interfaces.Repositories
 {

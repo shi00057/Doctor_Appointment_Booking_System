@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using CST8002.Application.DTOs;
 using CST8002.Application.Interfaces.Services;
 using CST8002.Web.Areas.Admin.ViewModels.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -14,6 +11,7 @@ namespace CST8002.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
+    [Route("Admin/[controller]/[action]")]
     public class UsersController : AdminControllerBase
     {
         private readonly IUserService _users;
@@ -51,106 +49,46 @@ namespace CST8002.Web.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register() => View(new AdminUsersRegisterDoctorVm());
+        public IActionResult Register()
+        {
+            var vm = new AdminUsersRegisterDoctorVm { IsActive = true };
+            return View(vm);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(AdminUsersRegisterDoctorVm vm, CancellationToken ct)
         {
             if (!ModelState.IsValid) return View(vm);
-            const int SaltSize = 16;
-            var salt = RandomNumberGenerator.GetBytes(SaltSize);
-            var pwd = vm.Password ?? string.Empty;
+
+            const int saltSize = 16;
+            var salt = RandomNumberGenerator.GetBytes(saltSize);
+            var password = vm.Password ?? string.Empty;
+
             using var sha256 = SHA256.Create();
-            var hash = sha256.ComputeHash(salt.Concat(Encoding.UTF8.GetBytes(pwd)).ToArray());
+            var hashInput = salt.Concat(Encoding.UTF8.GetBytes(password)).ToArray();
+            var hash = sha256.ComputeHash(hashInput);
 
-            var (userId, doctorId) = await _doctors.CreateAsync(
-                vm.Email.Trim(), hash, salt,
-                vm.Name.Trim(), vm.Specialty?.Trim() ?? string.Empty,
-                vm.Phone?.Trim() ?? string.Empty,
-                vm.IsActive, ct);
-
-            TempData["Success"] = $"Doctor created. UserId={userId}, DoctorId={doctorId}";
-            return RedirectToAction(nameof(EditDoctor), new { id = doctorId });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> EditDoctor(int id, CancellationToken ct)
-        {
-            if (id <= 0) return NotFound();
-            var dto = await _users.GetDoctorByIdAsync(id, ct);
-            if (dto is null) return NotFound();
-
-            var vm = new AdminUsersEditDoctorVm
+            try
             {
-                DoctorId = dto.DoctorId,
-                Name = dto.Name,
-                Specialty = dto.Specialty,
-                Email = dto.Email,
-                Phone = dto.Phone,
-                IsActive = dto.IsActive
-            };
-            return View(vm);
-        }
+                var (userId, doctorId) = await _doctors.CreateAsync(
+                    vm.Email.Trim(),
+                    hash,
+                    salt,
+                    vm.Name.Trim(),
+                    vm.Specialty?.Trim() ?? string.Empty,
+                    vm.Phone?.Trim() ?? string.Empty,
+                    vm.IsActive,
+                    ct);
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditDoctor(AdminUsersEditDoctorVm vm, CancellationToken ct)
-        {
-            if (!ModelState.IsValid) return View(vm);
-
-            var dto = new DoctorDto
+                TempData["Success"] = $"Doctor created. UserId={userId}, DoctorId={doctorId}";
+                return RedirectToAction(nameof(Register));
+            }
+            catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 50022)
             {
-                DoctorId = vm.DoctorId,
-                Name = vm.Name,
-                Specialty = vm.Specialty,
-                Email = vm.Email,
-                Phone = vm.Phone,
-                IsActive = vm.IsActive
-            };
-            var saved = await _doctors.UpdateAsync(dto, ct);
-            TempData["Success"] = "Doctor saved.";
-            return RedirectToAction(nameof(EditDoctor), new { id = saved.DoctorId });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> EditPatient(int id, CancellationToken ct)
-        {
-            if (id <= 0) return NotFound();
-            var dto = await _users.GetPatientByIdAsync(id, ct);
-            if (dto is null) return NotFound();
-
-            var vm = new AdminUsersEditPatientVm
-            {
-                PatientId = dto.PatientId,
-                FullName = dto.FullName,
-                Phone = dto.Phone
-            };
-            return View(vm);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPatient(AdminUsersEditPatientVm vm, CancellationToken ct)
-        {
-            if (!ModelState.IsValid) return View(vm);
-
-            var dto = new PatientDto
-            {
-                PatientId = vm.PatientId,
-                FullName = vm.FullName,
-                Phone = vm.Phone
-            };
-            await _patients.UpdateAsync(dto, ct);
-
-            TempData["Success"] = "Patient saved.";
-            return RedirectToAction(nameof(EditPatient), new { id = vm.PatientId });
-        }
-
-        private static byte[] Pbkdf2(string password, byte[] salt, int iterations, int numBytes)
-        {
-            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, System.Security.Cryptography.HashAlgorithmName.SHA256);
-            return pbkdf2.GetBytes(numBytes);
+                ModelState.AddModelError(nameof(vm.Email), "Email already exists.");
+                return View(vm);
+            }
         }
     }
 }

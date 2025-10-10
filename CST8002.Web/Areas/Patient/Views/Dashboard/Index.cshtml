@@ -1,38 +1,35 @@
 @model CST8002.Web.Areas.Patient.ViewModels.PatientDashboardIndexVm
+
 @{
-    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
     ViewData["Title"] = "Patient Dashboard";
+    ViewData["UnreadCount"] = Model.UnreadCount;
 }
 
-<div class="container mt-3">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <div>
-            <h3 class="mb-1">Hello, @Model.DisplayName</h3>
-            <div class="text-muted">Today is @Model.Today.ToString("dddd, MMMM d, yyyy")</div>
-        </div>
-        <div>
-            <span class="badge bg-primary">Unread: @Model.UnreadCount</span>
-        </div>
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h3 class="mb-1">Hello, @Model.DisplayName</h3>
+        <div class="text-muted">Today is @Model.Today.ToString("dddd, MMMM d, yyyy")</div>
     </div>
+    <span class="badge bg-primary">Unread: @Model.UnreadCount</span>
+</div>
 
-    <div class="row g-3">
-        <div class="col-md-4">
-            <a class="btn btn-outline-primary w-100 p-3"
-               asp-area="Patient" asp-controller="Booking" asp-action="Index">
-                Create Appointment
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a class="btn btn-outline-primary w-100 p-3"
-               asp-area="Patient" asp-controller="Appointments" asp-action="Index">
-                My Appointments
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a class="btn btn-outline-primary w-100 p-3"
-               asp-area="Patient" asp-controller="Profile" asp-action="Edit">
-                My Profile
-            </a>
-        </div>
+<div class="row g-3">
+    <div class="col-md-4">
+        <a class="btn btn-outline-primary w-100 p-3"
+           asp-area="Patient" asp-controller="Booking" asp-action="Index">
+            Create Appointment
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a class="btn btn-outline-primary w-100 p-3"
+           asp-area="Patient" asp-controller="Appointments" asp-action="Index">
+            My Appointments
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a class="btn btn-outline-primary w-100 p-3"
+           asp-area="Patient" asp-controller="Profile" asp-action="Edit">
+            My Profile
+        </a>
     </div>
 </div>

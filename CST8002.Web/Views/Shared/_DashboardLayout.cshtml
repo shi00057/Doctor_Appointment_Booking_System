@@ -1,40 +1,46 @@
-@inject CST8002.Application.Abstractions.IDateTimeProvider Clock
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>@ViewData["Title"] - Dashboard</title>
-    <link href="~/css/site.css" rel="stylesheet" />
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body>
-    <div class="d-flex">
-        <aside class="sidebar">
-            @RenderSection("Sidebar", required: false)
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var area = (string?)ViewContext.RouteData.Values["area"] ?? "";
+    var sidebarPartial = area switch
+    {
+        "Admin" => "_SidebarAdmin",
+        "Doctor" => "_SidebarDoctor",
+        "Patient" => "_SidebarPatient",
+        _ => "_SidebarPatient"
+    };
+    var pageTitle = (ViewData["Title"] as string) ?? "";
+}
+
+<div class="container-fluid py-3">
+    <div class="row">
+        <aside class="col-12 col-md-3 col-lg-2 mb-3 mb-md-0">
+            @await Html.PartialAsync($"~/Views/Shared/{sidebarPartial}.cshtml")
         </aside>
 
-        <main class="flex-fill">
-            <header class="border-bottom mb-3 p-2">
-                <div>
-                    Hello, @User?.Identity?.Name
-                    <span class="text-muted">| Today is @Clock.UtcNow.ToLocalTime().ToString("yyyy-MM-dd")</span>
+        <main class="col-12 col-md-9 col-lg-10">
+            @if (!string.IsNullOrWhiteSpace(pageTitle))
+            {
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h2 class="h5 mb-0">@pageTitle</h2>
+                    <div class="small text-muted">@DateTime.Now.ToString("yyyy-MM-dd")</div>
                 </div>
-            </header>
+            }
 
-            <div class="container">
-                @RenderBody()
+            @RenderBody()
+
+            <div class="mt-4">
+                @await Html.PartialAsync("~/Views/Shared/_NotificationsBar.cshtml")
             </div>
 
-            <footer class="border-top mt-4 p-2">
-                @await Html.PartialAsync("_NotificationsBar", ViewData["UnreadNotifications"])
-            </footer>
+            @RenderSection("Scripts", required: false)
+            @RenderSection("Styles", required: false)
         </main>
     </div>
+</div>
 
-    @RenderSection("Scripts", required: false)
-</body>
-</html>
-
-@await Html.PartialAsync("_NotificationsBar")
-@await Html.PartialAsync("_Toast")
+<style>
+    .sidebar-sticky {
+        position: sticky;
+        top: 1rem;
+    }
+</style>

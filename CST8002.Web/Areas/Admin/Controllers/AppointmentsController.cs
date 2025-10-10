@@ -9,8 +9,7 @@ using CST8002.Web.Areas.Admin.ViewModels.Appointments;
 
 namespace CST8002.Web.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+
     public sealed class AppointmentsController : AdminControllerBase
     {
         private readonly IAppointmentService _appointments;

@@ -1,33 +1,47 @@
 ﻿@using CST8002.Web.Areas.Patient.ViewModels
 @model PatientProfileEditVm
+
 @{
     ViewData["Title"] = "My Profile";
+    ViewData["UnreadCount"] = ViewData["UnreadCount"] ?? 0;
 }
-<h2>My Profile</h2>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="PatientId" />
-    <div>
-        <label>Full Name</label>
-        <input asp-for="FullName" />
-        <span asp-validation-for="FullName"></span>
-    </div>
-    <div>
-        <label>Phone</label>
-        <input asp-for="Phone" />
-        <span asp-validation-for="Phone"></span>
-    </div>
-    <button type="submit">Save</button>
-</form>
-
-@{
-    var m = TempData["Message"] as string;
-}
-@if (!string.IsNullOrWhiteSpace(m))
+@if (TempData["Message"] is string msg && !string.IsNullOrWhiteSpace(msg))
 {
-    <div>@m</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @msg
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
-<div>
-    <a asp-area="Patient" asp-controller="Appointments" asp-action="Index">Back to My Appointments</a>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Edit" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="PatientId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-12">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" type="tel" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-area="Patient" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

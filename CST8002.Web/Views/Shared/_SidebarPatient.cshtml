@@ -1,7 +1,45 @@
-<div class="list-group">
-    <a class="list-group-item list-group-item-action" asp-controller="PatientUi" asp-action="CreateAppointment">Create Appointment</a>
-    <a class="list-group-item list-group-item-action" asp-controller="PatientUi" asp-action="MyAppointments">My Appointments</a>
-    <a class="list-group-item list-group-item-action" asp-controller="PatientUi" asp-action="Profile">Profile</a>
-    <a class="list-group-item list-group-item-action" asp-controller="Notifications" asp-action="Index">Notifications</a>
-    <a class="btn btn-outline-secondary mt-3" asp-controller="Account" asp-action="Logout">Logout</a>
-</div>
+@{
+    var area = (string?)ViewContext.RouteData.Values["area"] ?? "";
+    var controller = (string?)ViewContext.RouteData.Values["controller"] ?? "";
+    var action = (string?)ViewContext.RouteData.Values["action"] ?? "";
+
+    string IsActive(string expectedArea, string expectedController, string expectedAction = "Index")
+        => area.Equals(expectedArea, StringComparison.OrdinalIgnoreCase) &&
+           controller.Equals(expectedController, StringComparison.OrdinalIgnoreCase) &&
+           action.Equals(expectedAction, StringComparison.OrdinalIgnoreCase)
+           ? "active" : "";
+
+    int unread = ViewData["UnreadCount"] as int? ?? 0;
+}
+
+<nav class="list-group sidebar-sticky">
+    <a class="list-group-item list-group-item-action @(IsActive("Patient", "Dashboard"))"
+       asp-area="Patient" asp-controller="Dashboard" asp-action="Index">
+        Overview
+    </a>
+
+    <!-- Point to Book instead of Index, and mark active accordingly -->
+    <a class="list-group-item list-group-item-action @(IsActive("Patient", "Booking"))"
+       asp-area="Patient" asp-controller="Booking" asp-action="Index">
+        Create Appointment
+    </a>
+
+    <a class="list-group-item list-group-item-action @(IsActive("Patient", "Appointments"))"
+       asp-area="Patient" asp-controller="Appointments" asp-action="Index">
+        My Appointments
+    </a>
+
+    <a class="list-group-item list-group-item-action @(area=="Patient" && controller=="Notifications" ? "active" : "")"
+       asp-area="Patient" asp-controller="Notifications" asp-action="Index">
+        Notifications
+        @if ((ViewData["UnreadCount"] as int? ?? 0) > 0)
+        {
+            <span class="badge bg-primary ms-1">@((int)ViewData["UnreadCount"])</span>
+        }
+    </a>
+
+    <a class="list-group-item list-group-item-action @(IsActive("Patient", "Profile", "Edit"))"
+       asp-area="Patient" asp-controller="Profile" asp-action="Edit">
+        My Profile
+    </a>
+</nav>

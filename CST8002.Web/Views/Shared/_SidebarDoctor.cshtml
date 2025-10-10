@@ -1,7 +1,48 @@
-<ul class="nav flex-column">
-	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Schedule" asp-action="Index">Generate Slots</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Appointments" asp-action="Index">My Appointments</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Profile" asp-action="Edit">Profile</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Doctor" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
-</ul>
+@* /Views/Shared/_SidebarDoctor.cshtml *@
+@using System
+@{
+    var unread = (int?)ViewData["UnreadCount"] ?? 0;
+    string Active(string ctrl, string? act = null, bool exact = false)
+    {
+        var c = (string?)ViewContext.RouteData.Values["controller"];
+        var a = (string?)ViewContext.RouteData.Values["action"];
+        bool ctrlOk = string.Equals(c, ctrl, StringComparison.OrdinalIgnoreCase);
+        if (!ctrlOk) return "";
+        if (act is null) return "active";
+        return exact
+            ? (string.Equals(a, act, StringComparison.OrdinalIgnoreCase) ? "active" : "")
+            : "active";
+    }
+}
+<nav class="pt-2">
+    <div class="list-group list-group-flush">
+        <a asp-area="Doctor" asp-controller="Dashboard" asp-action="Index"
+           class="list-group-item list-group-item-action @Active("Dashboard", "Index", true)">
+            Dashboard
+        </a>
+
+        <a asp-area="Doctor" asp-controller="Schedule" asp-action="Index"
+           class="list-group-item list-group-item-action @Active("Schedule")">
+            Generate My Schedule
+        </a>
+
+        <a asp-area="Doctor" asp-controller="Appointments" asp-action="Index"
+           class="list-group-item list-group-item-action @Active("Appointments")">
+            My Appointments
+        </a>
+
+        <a asp-area="Doctor" asp-controller="Profile" asp-action="Edit"
+           class="list-group-item list-group-item-action @Active("Profile")">
+            My Profile
+        </a>
+
+        <a asp-controller="Notifications" asp-action="Index"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @Active("Notifications")">
+            <span>Notifications</span>
+            @if (unread > 0)
+            {
+                <span class="badge bg-primary">@unread</span>
+            }
+        </a>
+    </div>
+</nav>

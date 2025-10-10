@@ -23,29 +23,22 @@ namespace CST8002.Web.Areas.Patient.Controllers
             _userCtx = userCtx;
             _user = user;
         }
-
         [HttpGet]
         public async Task<IActionResult> Edit(CancellationToken ct)
         {
             var pid = await _userCtx.GetPatientIdAsync(_user.UserId, ct);
             if (pid is null) return Forbid();
-            var vm = new PatientProfileEditVm { PatientId = pid.Value };
+
+            var dto = await _patients.GetAsync(pid.Value, ct);
+            if (dto is null) return NotFound();
+
+            var vm = new PatientProfileEditVm
+            {
+                PatientId = dto.PatientId,
+                FullName = dto.FullName,
+                Phone = dto.Phone
+            };
             return View(vm);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(PatientProfileEditVm vm, CancellationToken ct)
-        {
-            var pid = await _userCtx.GetPatientIdAsync(_user.UserId, ct);
-            if (pid is null) return Forbid();
-            if (pid.Value != vm.PatientId) return Forbid();
-
-            var dto = new PatientDto { PatientId = vm.PatientId, FullName = vm.FullName, Phone = vm.Phone };
-            await _patients.UpdateAsync(dto, ct);
-            TempData["Message"] = "Profile saved.";
-            return RedirectToAction(nameof(Edit));
-
-        }
+        }  
     }
 }

@@ -5,6 +5,8 @@
 <div class="container mt-5" style="max-width:560px">
     <h3 class="mb-4">Register Patient</h3>
     <form asp-action="RegisterPatient" method="post">
+        @Html.AntiForgeryToken()
+
         <div class="mb-3">
             <label asp-for="FullName" class="form-label"></label>
             <input asp-for="FullName" class="form-control" />

@@ -13,6 +13,15 @@ namespace CST8002.Infrastructure.Data.Repositories
     public sealed class PatientRepository : IPatientRepository
     {
         private readonly ISqlConnectionFactory _factory;
+        public async Task<PatientDto?> GetAsync(int patientId, CancellationToken ct = default)
+        {
+            using var conn = await _factory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+            var row = await conn.QuerySingleOrDefaultAsync<PatientDto>(
+                SqlConstants.SpGetPatientById,
+                new { PatientId = patientId },
+                commandType: CommandType.StoredProcedure);
+            return row;
+        }
         public PatientRepository(ISqlConnectionFactory factory) { _factory = factory; }
 
         public async Task<PatientDto> UpdateAsync(int patientId, string fullName, string phone, CancellationToken ct = default)

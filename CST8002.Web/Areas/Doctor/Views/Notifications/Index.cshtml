@@ -1,5 +1,62 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<CST8002.Web.ViewModels.NotificationVm>
 @{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    ViewData["Title"] = "Notifications";
+
+    var list = (Model ?? Enumerable.Empty<CST8002.Web.ViewModels.NotificationVm>()).ToList();
+    var unreadCount = list.Count(x => !x.IsRead);
+    ViewData["UnreadCount"] = unreadCount;
+}
+
+<div class="d-flex align-items-center mb-3">
+    <h3 class="mb-0">Notifications</h3>
+    <span class="badge bg-primary ms-2">@unreadCount</span>
+
+    <div class="ms-auto d-flex gap-2">
+        <form asp-area="Doctor" asp-controller="Notifications" asp-action="MarkAll" method="post" class="m-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-sm btn-outline-secondary" @(unreadCount == 0 ? "disabled" : null)>Mark all as read</button>
+        </form>
+        <a class="btn btn-sm btn-outline-primary" asp-area="Doctor" asp-controller="Notifications" asp-action="Index">Refresh</a>
+    </div>
+</div>
+
+@if (!list.Any())
+{
+    <div class="text-muted">No notifications.</div>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var n in list)
+        {
+            var sev = string.IsNullOrWhiteSpace(n.Severity) ? "info" : n.Severity;
+            var timeStr = n.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+            var unreadClass = n.IsRead ? "" : "border-start border-3 border-primary";
+
+            <li class="list-group-item d-flex justify-content-between align-items-start @unreadClass">
+                <div class="me-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-@sev">@sev</span>
+                        <span class="text-muted small">@timeStr</span>
+                    </div>
+                    <div class="mt-1">@n.Message</div>
+
+                    @if (!string.IsNullOrWhiteSpace(n.LinkUrl))
+                    {
+                        <div class="mt-1">
+                            <a class="small" href="@n.LinkUrl">@(!string.IsNullOrWhiteSpace(n.LinkText) ? n.LinkText : "Open")</a>
+                        </div>
+                    }
+                </div>
+
+                <div class="text-nowrap">
+                    <form asp-area="Doctor" asp-controller="Notifications" asp-action="MarkRead" asp-route-id="@n.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-success" @(n.IsRead ? "disabled" : null)>Mark read</button>
+                    </form>
+                </div>
+            </li>
+        }
+    </ul>
 }

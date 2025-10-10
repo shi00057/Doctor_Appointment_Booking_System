@@ -35,15 +35,21 @@ namespace CST8002.Web.Areas.Doctor.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(DoctorScheduleIndexVm vm, CancellationToken ct)
         {
+            if (vm.StartHour.HasValue && vm.EndHour.HasValue && vm.StartHour.Value >= vm.EndHour.Value)
+            {
+                ModelState.AddModelError(string.Empty, "StartHour must be < EndHour.");
+            }
+
             if (!ModelState.IsValid) return View(vm);
 
             var doctorId = await ResolveDoctorIdAsync(ct);
+
             var req = new GenerateSlotsRequest
             {
                 DoctorId = doctorId,
-                WorkDate = vm.WorkDate.Date,
-                StartHour = vm.StartHour,
-                EndHour = vm.EndHour
+                WorkDate = vm.WorkDate!.Value.Date,
+                StartHour = vm.StartHour!.Value,
+                EndHour = vm.EndHour!.Value
             };
 
             await _schedule.DoctorGenerateSlotsAsync(req, ct);

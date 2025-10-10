@@ -9,10 +9,12 @@ using CST8002.Infrastructure.Data.Repositories;
 using CST8002.Infrastructure.Data.Retry;
 using CST8002.Infrastructure.Data.Transactions;
 using CST8002.Web.Filters;
-using CST8002.Web.Infrastructure; 
+using CST8002.Web.Infrastructure;
 using CST8002.Web.Mapping;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +23,14 @@ builder.Services
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/Denied";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/Login";
         options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
+
+builder.Services.AddAuthorization();
+
 builder.Services.Configure<DbOptions>(builder.Configuration.GetSection("Database"));
 builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 builder.Services.AddSingleton<SqlRetryPolicy>();
@@ -35,7 +42,6 @@ builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
-
 builder.Services.AddScoped<INotificationQueryService, NotificationQueryService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
@@ -43,15 +49,19 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
-
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddSingleton<IDateTimeProvider, SystemClock>();
 
-//builder.Services.AddAutoMapper(
-//    typeof(UiMappingProfile).Assembly,
-//    typeof(ApplicationMappingProfile).Assembly);
+var cfgExp = new MapperConfigurationExpression();
+cfgExp.AddProfile(new UiMappingProfile());
+cfgExp.AddProfile(new ApplicationMappingProfile());
+
+var mapperConfig = new MapperConfiguration(cfgExp, NullLoggerFactory.Instance);
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -76,6 +86,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

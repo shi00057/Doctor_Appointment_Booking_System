@@ -1,43 +1,65 @@
-@* Areas/Admin/Views/Users/Register.cshtml *@
-<form asp-area="Admin" asp-controller="Users" asp-action="Register" method="post" class="vstack gap-3">
-    <input asp-for="Email" class="form-control" />
-    <input asp-for="Name" class="form-control" />
-    <input asp-for="Specialty" class="form-control" />
-    <input asp-for="Phone" class="form-control" />
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
-
-@* Areas/Admin/Views/Schedule/Generate.cshtml *@
-<form asp-area="Admin" asp-controller="Schedule" asp-action="Generate" method="post" class="vstack gap-3">
-    <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
-    <input asp-for="WorkDate" type="date" class="form-control" />
-    <input asp-for="StartHour" type="number" class="form-control" />
-    <input asp-for="EndHour" type="number" class="form-control" />
-    <button type="submit" class="btn btn-primary">Generate</button>
-</form>
-
-@* Areas/Doctor/Views/Schedule/Index.cshtml *@
-<form asp-area="Doctor" asp-controller="Schedule" asp-action="Index" method="post" class="vstack gap-3">
-    <input asp-for="WorkDate" type="date" class="form-control" />
-    <input asp-for="StartHour" type="number" class="form-control" />
-    <input asp-for="EndHour" type="number" class="form-control" />
-    <button type="submit" class="btn btn-primary">Generate</button>
-</form>
-
-@* Areas/Patient/Views/Booking/Index.cshtml  *@
-<form asp-area="Patient" asp-controller="Booking" asp-action="Index" method="post" class="vstack gap-3">
-    <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
-    <input asp-for="Date" type="date" class="form-control" />
-    <input asp-for="StartUtc" type="datetime-local" class="form-control" />
-    <input asp-for="EndUtc" type="datetime-local" class="form-control" />
-    <button type="submit" class="btn btn-primary">Book</button>
-</form>
-
-@* Areas/Patient/Views/Appointments/Index.cshtml  *@
-@foreach (var a in Model.Appointments)
-{
-    <form asp-area="Patient" asp-controller="Appointments" asp-action="Cancel" method="post" class="d-inline">
-        <input type="hidden" name="apptId" value="@a.ApptId" />
-        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
-    </form>
+@model CST8002.Web.Areas.Admin.ViewModels.Users.AdminUsersRegisterDoctorVm
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    ViewData["Title"] = "Register Doctor";
 }
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0">Register Doctor</h3>
+</div>
+
+@if (TempData["Success"] is string ok && !string.IsNullOrWhiteSpace(ok))
+{
+    <div class="alert alert-success" role="alert">@ok</div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-area="Admin" asp-controller="Users" asp-action="Register" method="post" class="vstack gap-3">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div>
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" type="email" placeholder="name@example.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="Name" class="form-label">Name</label>
+                <input asp-for="Name" class="form-control" placeholder="Full name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="Specialty" class="form-label">Specialty</label>
+                <input asp-for="Specialty" class="form-control" placeholder="e.g., Cardiology" />
+                <span asp-validation-for="Specialty" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="Phone" class="form-label">Phone</label>
+                <input asp-for="Phone" class="form-control" placeholder="e.g., 613-555-0123" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" class="form-control" type="password" autocomplete="new-password" placeholder="Enter a password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-check">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label">Active</label>
+                <span asp-validation-for="IsActive" class="text-danger"></span>
+            </div>
+
+            <div class="pt-2 d-grid d-md-block">
+                <button type="submit" class="btn btn-primary me-md-2 mb-2 mb-md-0">Register</button>
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</div>

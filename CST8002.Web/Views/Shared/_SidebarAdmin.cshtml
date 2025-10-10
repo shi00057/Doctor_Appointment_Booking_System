@@ -1,10 +1,43 @@
-<ul class="nav flex-column">
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="PendingPatients">Activate Patients</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="Register">Register Doctor</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="EditPatient">Patients</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="EditDoctor">Doctors</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Schedule" asp-action="Generate">Generate Slots</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Manage Appointments</a></li>
-	<li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Reports" asp-action="Index">Reports</a></li>
-</ul>
+@{
+    var currentController = (string?)ViewContext.RouteData.Values["controller"] ?? "";
+    var currentAction = (string?)ViewContext.RouteData.Values["action"] ?? "";
+}
+
+<nav class="sidebar-sticky">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action @(currentController == "Dashboard" ? "active" : null)"
+           asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+            Dashboard
+        </a>
+
+        <a class="list-group-item list-group-item-action @(currentController == "Users" && currentAction == "PendingPatients" ? "active" : null)"
+           asp-area="Admin" asp-controller="Users" asp-action="PendingPatients">
+            Activate Patients
+        </a>
+
+        <a class="list-group-item list-group-item-action @(currentController == "Users" && currentAction == "Register" ? "active" : null)"
+           asp-area="Admin" asp-controller="Users" asp-action="Register">
+            Register Doctor
+        </a>
+
+        <a class="list-group-item list-group-item-action @(currentController == "Schedule" ? "active" : null)"
+           asp-area="Admin" asp-controller="Schedule" asp-action="Generate">
+            Generate Doctor Slots
+        </a>
+
+        <a class="list-group-item list-group-item-action @(currentController == "Appointments" ? "active" : null)"
+           asp-area="Admin" asp-controller="Appointments" asp-action="Index">
+            Manage Appointments
+        </a>
+
+        <a class="list-group-item list-group-item-action @(currentController == "Reports" ? "active" : null)"
+           asp-area="Admin" asp-controller="Reports" asp-action="Index">
+            Reports
+        </a>
+
+        <a class="list-group-item list-group-item-action"
+           asp-area="" asp-controller="Notifications" asp-action="Index">
+            Notifications
+        </a>
+    </div>
+</nav>

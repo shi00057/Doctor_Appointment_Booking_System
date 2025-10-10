@@ -23,7 +23,7 @@ namespace CST8002.Infrastructure.Data.Configuration
         public const string SpDeletePatientSoft = $"{Schema}.sp_DeletePatientSoft";
         public const string SpUpdatePatient = $"{Schema}.sp_UpdatePatient";
         public const string SpListPatientsPendingActivation = $"{Schema}.sp_ListPatientsPendingActivation";
-    
+        public const string SpGetPatientById = "[DABS].[sp_GetPatientById]";
 
         // Appointments
         public const string SpAdminCancelAppointment = $"{Schema}.sp_AdminCancelAppointment";

@@ -12,6 +12,11 @@ namespace CST8002.Application.Services
         private readonly IPatientRepository _repo;
 
         public PatientService(IPatientRepository repo) => _repo = repo;
+        public Task<PatientDto?> GetAsync(int patientId, CancellationToken ct = default)
+        {
+            if (patientId <= 0) throw new ArgumentOutOfRangeException(nameof(patientId));
+            return _repo.GetAsync(patientId, ct);
+        }
 
         public Task<PatientDto> UpdateAsync(PatientDto dto, CancellationToken ct = default)
         {

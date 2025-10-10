@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -8,6 +9,16 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
+    @{
+        var role = User.FindFirst(ClaimTypes.Role)?.Value ?? "";
+        var dashArea = role switch
+        {
+            "Admin" => "Admin",
+            "Doctor" => "Doctor",
+            "Patient" => "Patient",
+            _ => ""
+        };
+    }
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
@@ -15,8 +26,16 @@
                 <div class="d-flex">
                     @if (User?.Identity?.IsAuthenticated ?? false)
                     {
-                        <a class="btn btn-outline-light me-2" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-                        <a class="btn btn-light" asp-controller="Account" asp-action="Logout">Logout</a>
+                        <a class="btn btn-outline-light me-2"
+                           asp-area="@dashArea" asp-controller="Dashboard" asp-action="Index">
+                            Dashboard
+                        </a>
+
+                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-light">Logout</button>
+                        </form>
+
                     }
                     else
                     {

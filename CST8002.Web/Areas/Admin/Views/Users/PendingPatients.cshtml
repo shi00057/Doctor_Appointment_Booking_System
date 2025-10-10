@@ -1,23 +1,67 @@
 @model CST8002.Web.Areas.Admin.ViewModels.Users.AdminUsersPendingPatientsVm
+@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    ViewData["Title"] = "Pending Patients";
+}
 
-<table class="table">
-    <thead>
-        <tr><th>Name</th><th>Email</th><th></th></tr>
-    </thead>
-    <tbody>
-        @foreach (var row in Model.Pending)
-        {
-            <tr>
-                <td>@row.FullName</td>
-                <td>@row.Email</td>
-                <td>
-                    <form asp-area="Admin" asp-controller="Users" asp-action="Activate"
-                          asp-route-userId="@row.UserId" method="post">
-                        <button type="submit" class="btn btn-sm btn-primary">Activate</button>
-                        @Html.AntiForgeryToken()
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0">Pending Patients</h3>
+</div>
+
+@if (TempData["Success"] is string ok && !string.IsNullOrWhiteSpace(ok))
+{
+    <div id="success-alert" class="alert alert-success" role="alert">@ok</div>
+}
+
+@if (Model?.Pending is null || !Model.Pending.Any())
+{
+    <div class="card">
+        <div class="card-body text-muted">No pending patients.</div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 35%;">Name</th>
+                        <th style="width: 45%;">Email</th>
+                        <th style="width: 20%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Pending)
+                    {
+                        <tr>
+                            <td>@row.FullName</td>
+                            <td>@row.Email</td>
+                            <td class="text-end">
+                                <form action="@Url.Action("Activate", "Users", new { area = "Admin" })"
+                                      method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@row.UserId" />
+                                    <button type="submit" class="btn btn-sm btn-primary">Activate</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<script>
+    (function () {
+        var el = document.getElementById('success-alert');
+        if (!el) return;
+        setTimeout(function () {
+            el.classList.add('fade');
+        }, 2000);
+        setTimeout(function () {
+            window.location.reload();
+        }, 3000);
+    })();
+</script>

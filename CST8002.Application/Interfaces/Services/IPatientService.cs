@@ -8,5 +8,6 @@ namespace CST8002.Application.Interfaces.Services
     {
         Task<PatientDto> UpdateAsync(PatientDto dto, CancellationToken ct = default);
         Task<int> DeleteSoftAsync(int patientId, CancellationToken ct = default);
+        Task<PatientDto?> GetAsync(int patientId, CancellationToken ct = default);
     }
 }

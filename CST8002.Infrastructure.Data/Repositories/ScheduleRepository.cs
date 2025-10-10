@@ -52,23 +52,31 @@ namespace CST8002.Infrastructure.Data.Repositories
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<CST8002.Application.DTOs.ScheduleSlotDto>> ListAvailableSlotsAsync(int doctorId, DateTime dateUtc, CancellationToken ct = default)
+        //public async Task<IEnumerable<CST8002.Application.DTOs.ScheduleSlotDto>> ListAvailableSlotsAsync(int doctorId, DateTime dateUtc, CancellationToken ct = default)
+        //{
+        //    using var conn = await _factory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        //    var rows = await conn.QueryAsync<CST8002.Application.DTOs.ScheduleSlotDto>(
+        //        SqlConstants.SpListAvailableSlots,
+        //        new { DoctorId = doctorId, DateUtc = dateUtc },
+        //        commandType: CommandType.StoredProcedure);
+        //    return rows;
+        //}
+        public async Task<IEnumerable<CST8002.Application.DTOs.ScheduleSlotDto>> ListAvailableSlotsAsync(
+        int doctorId, DateTime workDate, CancellationToken ct = default)
         {
             using var conn = await _factory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+            var p = new DynamicParameters();
+            p.Add("@DoctorId", doctorId, DbType.Int32);
+            p.Add("@WorkDate", workDate.Date, DbType.Date); 
+
             var rows = await conn.QueryAsync<CST8002.Application.DTOs.ScheduleSlotDto>(
-                SqlConstants.SpListAvailableSlots,
-                new { DoctorId = doctorId, DateUtc = dateUtc },
+                SqlConstants.SpListAvailableSlots, 
+                p,
                 commandType: CommandType.StoredProcedure);
+
             return rows;
         }
-
     }
 
-    public sealed class ScheduleSlotDto
-    {
-        public long SlotId { get; set; }
-        public int DoctorId { get; set; }
-        public DateTime StartUtc { get; set; }
-        public DateTime EndUtc { get; set; }
-    }
 }

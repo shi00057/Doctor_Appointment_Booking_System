@@ -1,57 +1,207 @@
-@using CST8002.Web.Areas.Patient.ViewModels
+﻿@using CST8002.Web.Areas.Patient.ViewModels
 @using Microsoft.AspNetCore.Mvc.Rendering
-@using System.Linq
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model PatientBookingIndexVm
 
 @{
     ViewData["Title"] = "Create Appointment";
 }
-<h2>Create Appointment</h2>
 
-<form asp-action="CreateAppointment" method="post">
-    <div>
-        <label>Doctor</label>
-        <select asp-for="DoctorId" asp-items="Model.Doctors"></select>
-        <span asp-validation-for="DoctorId"></span>
+<div class="mb-3">
+    <h3 class="mb-1">Create Appointment</h3>
+    <div class="text-muted">Select a doctor and a date, then load available slots.</div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="filterForm" class="row g-3" autocomplete="off">
+            <div class="col-md-5">
+                <label asp-for="DoctorId" class="form-label">Doctor</label>
+                <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
+                <span asp-validation-for="DoctorId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="workDate">Date</label>
+                <input id="workDate" name="WorkDate" type="date"
+                       value="@Model.WorkDate.ToString("yyyy-MM-dd")"
+                       class="form-control"
+                       min="@DateTime.Now.Date.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="WorkDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="button" id="btnLoadSlots" class="btn btn-primary w-100">
+                    Available Appointment List
+                </button>
+            </div>
+        </form>
     </div>
-    <div>
-        <label>Date</label>
-        <input asp-for="WorkDate" type="date" />
-        <span asp-validation-for="WorkDate"></span>
+</div>
+
+<div id="slotsPanel" class="card d-none">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Available Slots</span>
+        <small id="slotsMeta" class="text-muted"></small>
     </div>
-    <button type="submit">Load Available Slots</button>
+    <div class="card-body">
+        <div id="slotsEmpty" class="text-muted">No slots loaded.</div>
+
+        <div class="table-responsive d-none" id="slotsTableWrap">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:40%">Start (Local)</th>
+                        <th style="width:40%">End (Local)</th>
+                        <th class="text-end" style="width:20%"></th>
+                    </tr>
+                </thead>
+                <tbody id="slotsTbody"></tbody>
+            </table>
+        </div>
+        <div id="slotsError" class="text-danger d-none mt-2"></div>
+    </div>
+</div>
+
+<form id="bookForm"
+      asp-area="Patient"
+      asp-controller="Booking"
+      asp-action="Index"
+      method="post" class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="DoctorId" id="bookDoctorId" />
+    <input type="hidden" name="StartUtc" id="bookStartUtc" />
+    <input type="hidden" name="EndUtc" id="bookEndUtc" />
 </form>
 
-@if (Model.Slots != null && Model.Slots.Any())
-{
-    <h3>Available Slots</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Start</th>
-                <th>End</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var s in Model.Slots)
-            {
-                <tr>
-                    <td>@s.StartUtc.ToLocalTime()</td>
-                    <td>@s.EndUtc.ToLocalTime()</td>
-                    <td>
-                        <form asp-action="Book" method="post">
-                            <input type="hidden" name="doctorId" value="@Model.DoctorId" />
-                            <input type="hidden" name="startUtc" value="@s.StartUtc.ToString("o")" />
-                            <input type="hidden" name="endUtc" value="@s.EndUtc.ToString("o")" />
-                            <button type="submit">Book</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-<div>
-     + <a asp-area="Patient" asp-controller="Appointments" asp-action="Index">Back to My Appointments</a><a asp-area="Patient" asp-controller="Appointments" asp-action="Index">Back to My Appointments</a>
+<div class="mt-3">
+    <a class="btn btn-outline-secondary"
+       asp-area="Patient" asp-controller="Appointments" asp-action="Index">
+        Back to My Appointments
+    </a>
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+          const btnLoad = document.getElementById('btnLoadSlots');
+          const workDate = document.getElementById('workDate');
+          const doctorSelect = document.getElementById('DoctorId'); 
+          const slotsPanel = document.getElementById('slotsPanel');
+          const slotsMeta = document.getElementById('slotsMeta');
+          const slotsEmpty = document.getElementById('slotsEmpty');
+          const slotsTableWrap = document.getElementById('slotsTableWrap');
+          const slotsTbody = document.getElementById('slotsTbody');
+          const slotsError = document.getElementById('slotsError');
+
+          const bookForm = document.getElementById('bookForm');
+          const bookDoctorId = document.getElementById('bookDoctorId');
+          const bookStartUtc = document.getElementById('bookStartUtc');
+          const bookEndUtc = document.getElementById('bookEndUtc');
+
+          const slotsUrl = '@Url.Action("Slots", "Booking", new { area = "Patient" })';
+
+          function asLocal(iso) {
+            if (!iso) return '';
+            const d = new Date(iso); 
+            return isNaN(d.getTime()) ? iso : d.toLocaleString();
+          }
+
+          function setStateLoading() {
+            slotsPanel.classList.remove('d-none');
+            slotsError.classList.add('d-none');
+            slotsEmpty.classList.remove('d-none');
+            slotsEmpty.textContent = 'Loading...';
+            slotsTableWrap.classList.add('d-none');
+            slotsTbody.innerHTML = '';
+          }
+          function setStateEmpty() {
+            slotsError.classList.add('d-none');
+            slotsEmpty.classList.remove('d-none');
+            slotsEmpty.textContent = 'No available slots for the selected date.';
+            slotsTableWrap.classList.add('d-none');
+          }
+          function setStateError(msg) {
+            slotsError.textContent = msg || 'Failed to load slots.';
+            slotsError.classList.remove('d-none');
+            slotsEmpty.classList.add('d-none');
+            slotsTableWrap.classList.add('d-none');
+          }
+          function setStateTable() {
+            slotsError.classList.add('d-none');
+            slotsEmpty.classList.add('d-none');
+            slotsTableWrap.classList.remove('d-none');
+          }
+
+          async function loadSlots() {
+            const docId = doctorSelect && doctorSelect.value ? parseInt(doctorSelect.value, 10) : 0;
+            const dateVal = workDate.value;
+            if (!docId) { setStateError('Please select a doctor.'); return; }
+            if (!dateVal) { setStateError('Please pick a date.'); return; }
+
+            setStateLoading();
+            slotsMeta.textContent = `Doctor #${docId} • ${dateVal}`;
+
+            const url = `${slotsUrl}?doctorId=${encodeURIComponent(docId)}&date=${encodeURIComponent(dateVal)}&t=${Date.now()}`;
+            try {
+              console.debug('[slots] GET', url);
+              const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+
+              if (!resp.ok) {
+                let err = `HTTP ${resp.status}`;
+                try { const j = await resp.json(); if (j && j.message) err += ` - ${j.message}`; } catch {  }
+                console.error('[slots] error', err);
+                throw new Error(err);
+              }
+
+              
+              const data = await resp.json();
+
+              if (!Array.isArray(data) || data.length === 0) {
+                setStateEmpty();
+                return;
+              }
+
+              const rows = data.map(s => {
+                const startUtc = s.startUtc || s.StartUtc;
+                const endUtc = s.endUtc || s.EndUtc;
+                const tr = document.createElement('tr');
+
+                const tdStart = document.createElement('td');
+                tdStart.textContent = asLocal(startUtc);
+
+                const tdEnd = document.createElement('td');
+                tdEnd.textContent = asLocal(endUtc);
+
+                const tdAct = document.createElement('td');
+                tdAct.className = 'text-end';
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-sm btn-success';
+                btn.textContent = 'Book';
+                btn.addEventListener('click', () => {
+                  bookDoctorId.value = String(docId);
+                  bookStartUtc.value = startUtc; 
+                  bookEndUtc.value = endUtc;
+                  bookForm.submit();
+                });
+                tdAct.appendChild(btn);
+
+                tr.appendChild(tdStart);
+                tr.appendChild(tdEnd);
+                tr.appendChild(tdAct);
+                return tr;
+              });
+
+              slotsTbody.replaceChildren(...rows);
+              setStateTable();
+            } catch (e) {
+              console.error('[slots] exception', e);
+              setStateError(e && e.message ? e.message : 'Failed to load slots.');
+            }
+          }
+
+          btnLoad.addEventListener('click', loadSlots);
+        })();
+    </script>
+}
+
+

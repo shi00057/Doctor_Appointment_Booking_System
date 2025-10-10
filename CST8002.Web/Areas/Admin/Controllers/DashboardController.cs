@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 
 namespace CST8002.Web.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+
     public sealed class DashboardController : AdminControllerBase 
     {
         private readonly INotificationQueryService _notifications;

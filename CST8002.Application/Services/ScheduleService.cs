@@ -37,12 +37,16 @@ namespace CST8002.Application.Services
             ValidateRange(doctorId, fromDate, toDate, startHour, endHour);
             return _repo.AdminGenerateSlotsRangeAsync(doctorId, fromDate.Date, toDate.Date, startHour, endHour, _user.UserId, ct);
         }
-
-        public Task<IEnumerable<ScheduleSlotDto>> ListAvailableSlotsAsync(int doctorId, DateTime workDate, CancellationToken ct = default)
+        public async Task<IEnumerable<ScheduleSlotDto>> ListAvailableSlotsAsync(
+            int doctorId, DateTime workDate, CancellationToken ct = default)
         {
             if (doctorId <= 0) throw new ArgumentOutOfRangeException(nameof(doctorId));
-            return _repo.ListAvailableSlotsAsync(doctorId, workDate.Date, ct);
+            var result = await _repo.ListAvailableSlotsAsync(doctorId, workDate.Date, ct);
+            return result ?? Array.Empty<ScheduleSlotDto>();
         }
+
+
+
 
         public Task ClearSlotsRangeAsync(int doctorId, DateTime fromDate, DateTime toDate, CancellationToken ct = default)
         {

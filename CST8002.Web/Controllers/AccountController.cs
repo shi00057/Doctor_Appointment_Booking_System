@@ -43,11 +43,11 @@ namespace CST8002.Web.Controllers
         {
             if (!ModelState.IsValid) return View(vm);
 
-            
+
             var email = (vm.UserName ?? string.Empty).Trim();
             var pwd = vm.Password ?? string.Empty;
 
-            
+
             var salt = await _users.GetSaltByEmailAsync(email, ct);
             if (salt is null || salt.Length == 0)
             {
@@ -58,7 +58,7 @@ namespace CST8002.Web.Controllers
             using var sha256 = SHA256.Create();
             var hash = sha256.ComputeHash(salt.Concat(Encoding.UTF8.GetBytes(pwd)).ToArray());
 
-            
+
             var result = await _users.LoginAsync(email, hash, ct);
             if (result.UserId <= 0 || result.IsActive == false || string.IsNullOrWhiteSpace(result.Role))
             {
@@ -140,12 +140,23 @@ namespace CST8002.Web.Controllers
         }
 
         // ---------- Logout ----------
-        [HttpGet]
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return View("LoggedOut");
+            return RedirectToAction("Login", "Account");
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [ActionName("Logout")]
+        public IActionResult LogoutGet()
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
     }
 }
