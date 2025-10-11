@@ -56,5 +56,14 @@ namespace CST8002.Application.Services
         {
             return _repo.ListBasicsAsync(ct);
         }
+        public DoctorService(IDoctorRepository repo, ICurrentUser user)
+        {
+            _repo = repo;
+            _user = user;
+        }
+
+        public Task<int> GetDoctorIdByUserIdAsync(CancellationToken ct = default)
+            => _repo.GetDoctorIdByUserIdAsync(_user.UserId, ct);
+
     }
 }

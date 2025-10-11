@@ -49,8 +49,8 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width:40%">Start (Local)</th>
-                        <th style="width:40%">End (Local)</th>
+                        <th style="width:40%">Start (UTC)</th>
+                        <th style="width:40%">End (UTC)</th>
                         <th class="text-end" style="width:20%"></th>
                     </tr>
                 </thead>
@@ -84,7 +84,7 @@
         (function () {
           const btnLoad = document.getElementById('btnLoadSlots');
           const workDate = document.getElementById('workDate');
-          const doctorSelect = document.getElementById('DoctorId'); 
+          const doctorSelect = document.getElementById('DoctorId');
           const slotsPanel = document.getElementById('slotsPanel');
           const slotsMeta = document.getElementById('slotsMeta');
           const slotsEmpty = document.getElementById('slotsEmpty');
@@ -99,10 +99,13 @@
 
           const slotsUrl = '@Url.Action("Slots", "Booking", new { area = "Patient" })';
 
-          function asLocal(iso) {
+          function fmtUtc(iso) {
             if (!iso) return '';
-            const d = new Date(iso); 
-            return isNaN(d.getTime()) ? iso : d.toLocaleString();
+            const raw = iso.endsWith('Z') || iso.includes('+') ? iso : iso + 'Z';
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return iso;
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
           }
 
           function setStateLoading() {
@@ -142,17 +145,14 @@
 
             const url = `${slotsUrl}?doctorId=${encodeURIComponent(docId)}&date=${encodeURIComponent(dateVal)}&t=${Date.now()}`;
             try {
-              console.debug('[slots] GET', url);
-              const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+              const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin', cache: 'no-store' });
 
               if (!resp.ok) {
                 let err = `HTTP ${resp.status}`;
-                try { const j = await resp.json(); if (j && j.message) err += ` - ${j.message}`; } catch {  }
-                console.error('[slots] error', err);
+                try { const j = await resp.json(); if (j && j.message) err += ` - ${j.message}`; } catch {}
                 throw new Error(err);
               }
 
-              
               const data = await resp.json();
 
               if (!Array.isArray(data) || data.length === 0) {
@@ -166,10 +166,10 @@
                 const tr = document.createElement('tr');
 
                 const tdStart = document.createElement('td');
-                tdStart.textContent = asLocal(startUtc);
+                tdStart.textContent = fmtUtc(startUtc);
 
                 const tdEnd = document.createElement('td');
-                tdEnd.textContent = asLocal(endUtc);
+                tdEnd.textContent = fmtUtc(endUtc);
 
                 const tdAct = document.createElement('td');
                 tdAct.className = 'text-end';
@@ -179,7 +179,7 @@
                 btn.textContent = 'Book';
                 btn.addEventListener('click', () => {
                   bookDoctorId.value = String(docId);
-                  bookStartUtc.value = startUtc; 
+                  bookStartUtc.value = startUtc;
                   bookEndUtc.value = endUtc;
                   bookForm.submit();
                 });
@@ -194,7 +194,6 @@
               slotsTbody.replaceChildren(...rows);
               setStateTable();
             } catch (e) {
-              console.error('[slots] exception', e);
               setStateError(e && e.message ? e.message : 'Failed to load slots.');
             }
           }
@@ -203,5 +202,3 @@
         })();
     </script>
 }
-
-

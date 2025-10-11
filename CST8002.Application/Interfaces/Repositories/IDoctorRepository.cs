@@ -12,5 +12,6 @@ namespace CST8002.Application.Interfaces.Repositories
         Task<DoctorDto> UpdateAsync(int doctorId, string name, string specialty, string email, string phone, bool? isActive, CancellationToken ct = default);
         Task<int> DeleteSoftAsync(int doctorId, CancellationToken ct = default);
         Task<IEnumerable<DoctorDto>> ListBasicsAsync(CancellationToken ct = default);
+        Task<int> GetDoctorIdByUserIdAsync(int userId, CancellationToken ct = default);
     }
 }

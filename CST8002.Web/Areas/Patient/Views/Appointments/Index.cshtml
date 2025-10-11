@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "My Appointments";
 
-       var fromVal = Model.From ?? DateTime.Today.AddMonths(-1);
+    var fromVal = Model.From ?? DateTime.Today.AddMonths(-1);
     var toVal = Model.To ?? DateTime.Today.AddMonths(1);
 
     Func<string, string> badge = s =>
@@ -64,8 +64,8 @@ else
                 <tr>
                     <th>Appointment #</th>
                     <th>DoctorId</th>
-                    <th>Start (Local)</th>
-                    <th>End (Local)</th>
+                    <th>Start (UTC)</th>
+                    <th>End (UTC)</th>
                     <th>Status</th>
                     <th class="text-end">Actions</th>
                 </tr>
@@ -75,13 +75,13 @@ else
                 {
                     var canCancel =
                     string.Equals(a.Status, "Booked", StringComparison.OrdinalIgnoreCase)
-                    && a.StartUtc > DateTime.UtcNow; 
+                    && a.StartUtc > DateTime.UtcNow;
 
                     <tr>
                         <td>@a.ApptId</td>
                         <td>@a.DoctorId</td>
-                        <td>@a.StartUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@a.EndUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@DateTime.SpecifyKind(a.StartUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@DateTime.SpecifyKind(a.EndUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")</td>
                         <td>
                             <span class="badge @badge(a.Status)">@a.Status</span>
                         </td>

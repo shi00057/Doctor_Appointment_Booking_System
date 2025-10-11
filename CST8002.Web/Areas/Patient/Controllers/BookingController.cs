@@ -147,8 +147,8 @@ namespace CST8002.Web.Areas.Patient.Controllers
 
                 var result = slots.Select(s => new
                 {
-                    startUtc = (s.StartUtc.Kind == DateTimeKind.Utc ? s.StartUtc : s.StartUtc.ToUniversalTime()).ToString("o"),
-                    endUtc = (s.EndUtc.Kind == DateTimeKind.Utc ? s.EndUtc : s.EndUtc.ToUniversalTime()).ToString("o")
+                    startUtc = DateTime.SpecifyKind(s.StartUtc, DateTimeKind.Utc).ToString("o"),
+                    endUtc = DateTime.SpecifyKind(s.EndUtc, DateTimeKind.Utc).ToString("o")
                 });
 
                 return new JsonResult(result);
@@ -160,5 +160,6 @@ namespace CST8002.Web.Areas.Patient.Controllers
                 return StatusCode(500, new { message = msg });
             }
         }
+
     }
 }

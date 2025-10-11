@@ -4,11 +4,6 @@
     ViewData["Title"] = "My Appointments";
 }
 
-@functions {
-    string FmtLocal(DateTime dt)
-        => DateTime.SpecifyKind(dt, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm");
-}
-
 <div class="py-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h3 class="mb-0">My Appointments</h3>
@@ -53,8 +48,8 @@
                     <tr>
                         <th>ApptId</th>
                         <th>PatientId</th>
-                        <th>Start (Local)</th>
-                        <th>End (Local)</th>
+                        <th>Start (UTC)</th>
+                        <th>End (UTC)</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -64,8 +59,8 @@
                         <tr>
                             <td>@a.ApptId</td>
                             <td>@a.PatientId</td>
-                            <td>@FmtLocal(a.StartUtc)</td>
-                            <td>@FmtLocal(a.EndUtc)</td>
+                            <td>@DateTime.SpecifyKind(a.StartUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@DateTime.SpecifyKind(a.EndUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")</td>
                             <td><span class="badge bg-secondary">@a.Status</span></td>
                         </tr>
                     }

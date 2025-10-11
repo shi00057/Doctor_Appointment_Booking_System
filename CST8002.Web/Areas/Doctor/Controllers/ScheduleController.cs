@@ -1,13 +1,12 @@
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
+using CST8002.Application.Abstractions;
 using CST8002.Application.DTOs;
 using CST8002.Application.Interfaces.Services;
 using CST8002.Web.Areas.Doctor.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CST8002.Web.Areas.Doctor.Controllers
 {
@@ -17,11 +16,13 @@ namespace CST8002.Web.Areas.Doctor.Controllers
     {
         private readonly IScheduleService _schedule;
         private readonly IDoctorService _doctors;
+        private readonly ICurrentUser _user;
 
-        public ScheduleController(IScheduleService schedule, IDoctorService doctors)
+        public ScheduleController(IScheduleService schedule, IDoctorService doctors, ICurrentUser user)
         {
             _schedule = schedule;
             _doctors = doctors;
+            _user = user;
         }
 
         [HttpGet]
@@ -59,11 +60,10 @@ namespace CST8002.Web.Areas.Doctor.Controllers
 
         private async Task<int> ResolveDoctorIdAsync(CancellationToken ct)
         {
-            var email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name ?? string.Empty;
-            var list = await _doctors.ListBasicsAsync(ct);
-            var me = list.FirstOrDefault(x => string.Equals(x.Email ?? string.Empty, email, StringComparison.OrdinalIgnoreCase));
-            if (me is null) throw new InvalidOperationException("Doctor not found for current user.");
-            return me.DoctorId;
+            var doctorId = await _doctors.GetDoctorIdByUserIdAsync(ct);
+            if (doctorId <= 0)
+                throw new InvalidOperationException($"Doctor not found for current user (UserId={_user.UserId}).");
+            return doctorId;
         }
     }
 }

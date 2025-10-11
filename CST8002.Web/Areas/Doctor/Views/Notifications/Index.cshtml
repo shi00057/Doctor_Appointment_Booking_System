@@ -2,44 +2,66 @@
 @{
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
     ViewData["Title"] = "Notifications";
+    var unread = Model?.Count(x => !x.IsRead) ?? 0;
 
-    var list = (Model ?? Enumerable.Empty<CST8002.Web.ViewModels.NotificationVm>()).ToList();
-    var unreadCount = list.Count(x => !x.IsRead);
-    ViewData["UnreadCount"] = unreadCount;
+    bool onlyUnread = false;
+    int top = 50;
+    bool.TryParse(Context.Request.Query["onlyUnread"], out onlyUnread);
+    int.TryParse(Context.Request.Query["top"], out top);
+    if (top <= 0) top = 50;
 }
 
-<div class="d-flex align-items-center mb-3">
+<div class="d-flex align-items-center justify-content-between mb-3">
     <h3 class="mb-0">Notifications</h3>
-    <span class="badge bg-primary ms-2">@unreadCount</span>
 
-    <div class="ms-auto d-flex gap-2">
-        <form asp-area="Doctor" asp-controller="Notifications" asp-action="MarkAll" method="post" class="m-0">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-sm btn-outline-secondary" @(unreadCount == 0 ? "disabled" : null)>Mark all as read</button>
+    <div class="d-flex gap-2">
+        <form method="get" class="d-flex align-items-center gap-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="onlyUnread" name="onlyUnread" value="true" @(onlyUnread ? "checked" : "") />
+                <label class="form-check-label" for="onlyUnread">Only unread</label>
+            </div>
+
+            <select name="top" class="form-select form-select-sm" style="width:auto">
+                @{
+                    var options = new[] { 20, 50, 100, 200, 500 };
+                    foreach (var n in options)
+                    {
+                        <option value="@n" @(n == top ? "selected" : "")>@n</option>
+                    }
+                }
+            </select>
+
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
         </form>
-        <a class="btn btn-sm btn-outline-primary" asp-area="Doctor" asp-controller="Notifications" asp-action="Index">Refresh</a>
+
+        <form asp-area="Doctor" asp-controller="Notifications" asp-action="MarkAll" method="post" class="mb-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-sm btn-outline-secondary" @(unread == 0 ? "disabled" : "")>
+                Mark all as read
+            </button>
+        </form>
     </div>
 </div>
 
-@if (!list.Any())
+@if (Model == null || !Model.Any())
 {
-    <div class="text-muted">No notifications.</div>
+    <div class="alert alert-light border">No notifications.</div>
 }
 else
 {
     <ul class="list-group">
-        @foreach (var n in list)
+        @foreach (var n in Model)
         {
-            var sev = string.IsNullOrWhiteSpace(n.Severity) ? "info" : n.Severity;
-            var timeStr = n.CreatedAt.ToString("yyyy-MM-dd HH:mm");
-            var unreadClass = n.IsRead ? "" : "border-start border-3 border-primary";
-
-            <li class="list-group-item d-flex justify-content-between align-items-start @unreadClass">
-                <div class="me-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-@sev">@sev</span>
-                        <span class="text-muted small">@timeStr</span>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">
+                        @(n.IsRead ? "Notification" : "New notification")
+                        @if (!n.IsRead)
+                        {
+                            <span class="badge bg-primary ms-2">New</span>
+                        }
                     </div>
+
                     <div class="mt-1">@n.Message</div>
 
                     @if (!string.IsNullOrWhiteSpace(n.LinkUrl))
@@ -48,12 +70,23 @@ else
                             <a class="small" href="@n.LinkUrl">@(!string.IsNullOrWhiteSpace(n.LinkText) ? n.LinkText : "Open")</a>
                         </div>
                     }
-                </div>
 
-                <div class="text-nowrap">
-                    <form asp-area="Doctor" asp-controller="Notifications" asp-action="MarkRead" asp-route-id="@n.Id" method="post" class="d-inline">
+                <div class="small text-muted mt-1">
+                    @(
+                                    n.CreatedAt.Kind == DateTimeKind.Utc
+                                    ? n.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                    : n.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                    )
+                </div>
+            </div>
+
+                <div class="ms-3">
+                    <form asp-area="Doctor" asp-controller="Notifications" asp-action="MarkRead" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-outline-success" @(n.IsRead ? "disabled" : null)>Mark read</button>
+                        <input type="hidden" name="id" value="@n.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-primary" @(n.IsRead ? "disabled" : "")>
+                            Mark read
+                        </button>
                     </form>
                 </div>
             </li>

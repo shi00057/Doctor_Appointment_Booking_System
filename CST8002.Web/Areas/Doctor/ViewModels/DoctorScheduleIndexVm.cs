@@ -1,4 +1,3 @@
-// Areas/Doctor/ViewModels/DoctorScheduleIndexVm.cs
 using System;
 using System.ComponentModel.DataAnnotations;
 
